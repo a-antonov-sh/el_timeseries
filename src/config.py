@@ -10,13 +10,13 @@ PREDICTION_LEN = 24
 HIDDEN_SIZE = 256
 TRAIN_HISTORY = 8760  # 365 * 24: keep only last year of each series
 
-TRAIN_EPOCHS = 2
+TRAIN_EPOCHS = 10
 TRAIN_LR = 1e-4
 TRAIN_WEIGHT_DECAY = 5e-1
 TRAIN_GRAD_CLIP = .001
 TRAIN_BATCH_SIZE = 512
-TRAIN_STRIDE = 32
-MAX_BATCHES_PER_EPOCH = 20  # set to an int to cap batches per epoch
+TRAIN_STRIDE = 24
+MAX_BATCHES_PER_EPOCH = 200  # set to an int to cap batches per epoch
 
 MODEL_DIR = os.path.join("data", "models")
 

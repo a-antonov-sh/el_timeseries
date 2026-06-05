@@ -60,13 +60,13 @@ Resumes from `data/models/transformer.pt` if it exists. Key config options:
 
 | Config | Default | Description |
 |--------|---------|-------------|
-| `TRAIN_EPOCHS` | 2 | Number of epochs |
-| `TRAIN_LR` | 1e-4 | Learning rate |
-| `TRAIN_WEIGHT_DECAY` | 1e-3 | AdamW weight decay |
-| `TRAIN_GRAD_CLIP` | 0.1 | Gradient clipping norm |
-| `TRAIN_BATCH_SIZE` | 512 | Batch size |
-| `TRAIN_STRIDE` | 24 | Sliding window stride (hours) |
-| `MAX_BATCHES_PER_EPOCH` | 20 | Cap batches per epoch (`None` = all) |
+| `TRAIN_EPOCHS` | 10      | Number of epochs |
+| `TRAIN_LR` | 1e-4    | Learning rate |
+| `TRAIN_WEIGHT_DECAY` | 1e-3    | AdamW weight decay |
+| `TRAIN_GRAD_CLIP` | 0.01    | Gradient clipping norm |
+| `TRAIN_BATCH_SIZE` | 512     | Batch size |
+| `TRAIN_STRIDE` | 24      | Sliding window stride (hours) |
+| `MAX_BATCHES_PER_EPOCH` | 200     | Cap batches per epoch (`None` = all) |
 
 ---
 
