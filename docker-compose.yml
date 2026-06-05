@@ -2,7 +2,22 @@ services:
   chronos:
     build: .
     env_file: .env
+    environment:
+      - CUDA_VISIBLE_DEVICES=3
     volumes:
       - ./data:/app/data
       - ./src:/app/src
     command: ./keep_alive.sh
+
+    deploy:
+      resources:
+        limits:
+          cpus: '30'
+          memory: 80GB
+        reservations:
+          cpus: '30'
+          memory: 80GB
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
