@@ -1,0 +1,3 @@
+#!/bin/bash
+source .env
+python src/chronos_2/main.py

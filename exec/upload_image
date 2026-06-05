@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+TAG=${1:-260603}
+IMAGE="chronos_2:$TAG"
+DEST="gs://releva-ml-dev/dev/aantonov/chronos_2_${TAG}.tar.gz"
+
+echo "Saving $IMAGE..."
+sg docker -c "docker save $IMAGE" | gzip > "/tmp/chronos_2_${TAG}.tar.gz"
+
+echo "Uploading to $DEST..."
+gcloud storage cp "/tmp/chronos_2_${TAG}.tar.gz" "$DEST"
+
+rm "/tmp/chronos_2_${TAG}.tar.gz"
+echo "Done: $DEST"

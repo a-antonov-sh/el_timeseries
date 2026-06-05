@@ -1,0 +1,3 @@
+#!/bin/bash
+source .env
+python src/transform/predict.py
