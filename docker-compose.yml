@@ -1,0 +1,7 @@
+services:
+  chronos:
+    build: .
+    volumes:
+      - ./data:/app/data
+      - ./src:/app/src
+    command: ./keep_alive.sh

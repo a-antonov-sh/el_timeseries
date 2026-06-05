@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 from transform.transformer import _ElectricityBert
 from config import (
     CONTEXT_LEN, PREDICTION_LEN, MODEL_DIR, PREPARED_DIR,
-    TRAIN_EPOCHS, TRAIN_LR, TRAIN_WEIGHT_DECAY, TRAIN_GRAD_CLIP, TRAIN_BATCH_SIZE, TRAIN_STRIDE, MAX_BATCHES_PER_EPOCH,
+    TRAIN_EPOCHS, TRAIN_LR, TRAIN_WEIGHT_DECAY, TRAIN_GRAD_CLIP, TRAIN_BATCH_SIZE, TRAIN_STRIDE, MAX_BATCHES_PER_EPOCH, MAX_VAL_BATCHES,
 )
 
 
@@ -106,14 +106,14 @@ if __name__ == "__main__":
         model.eval()
         val_loss = 0.0
         with torch.no_grad():
-            for values, dow, hour, month, targets in itertools.islice(val_loader, MAX_BATCHES_PER_EPOCH):
+            for values, dow, hour, month, targets in itertools.islice(val_loader, MAX_VAL_BATCHES):
                 values, dow, hour, month, targets = (
                     values.to(device), dow.to(device),
                     hour.to(device), month.to(device), targets.to(device),
                 )
                 mean, _ = model(values, dow, hour, month)
                 val_loss += criterion(mean, targets).item()
-        val_loss /= min(MAX_BATCHES_PER_EPOCH or len(val_loader), len(val_loader))
+        val_loss /= min(MAX_VAL_BATCHES or len(val_loader), len(val_loader))
         print(f"Epoch {epoch + 1}/{TRAIN_EPOCHS}  train_loss={train_loss:.4f}  val_loss={val_loss:.4f}")
 
     os.makedirs(MODEL_DIR, exist_ok=True)

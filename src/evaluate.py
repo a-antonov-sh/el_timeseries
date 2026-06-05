@@ -32,8 +32,12 @@ def evaluate(predictions, actuals, label):
     print(f"  Mean uncertainty: {mean_uncertainty:.4f}")
 
 
+N_SERIES = 30  # set to None to evaluate all series
+
 if __name__ == "__main__":
     actuals = load_actuals()
+    if N_SERIES is not None:
+        actuals = actuals[actuals["id"].astype(int) < N_SERIES]
 
     files = {
         "Chronos-2":    "predictions.parquet",
