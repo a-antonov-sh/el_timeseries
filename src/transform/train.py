@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 from transform.transformer import _ElectricityBert
 from config import (
     CONTEXT_LEN, PREDICTION_LEN, MODEL_DIR, PREPARED_DIR,
-    TRAIN_EPOCHS, TRAIN_LR, TRAIN_WEIGHT_DECAY, TRAIN_GRAD_CLIP, TRAIN_BATCH_SIZE, TRAIN_STRIDE, MAX_BATCHES_PER_EPOCH, MAX_VAL_BATCHES,
+    TRAIN_EPOCHS, TRAIN_LR, TRAIN_WEIGHT_DECAY, TRAIN_GRAD_CLIP, TRAIN_BATCH_SIZE, TRAIN_STRIDE, MAX_BATCHES_PER_EPOCH, MAX_VAL_BATCHES, TRAIN_L1_WEIGHT,
 )
 
 
@@ -76,7 +76,8 @@ if __name__ == "__main__":
     print(f"Train: {len(train_dataset)} examples  Val: {len(val_dataset)} examples  device={device}")
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=TRAIN_LR, weight_decay=TRAIN_WEIGHT_DECAY)
-    criterion = nn.MSELoss()
+    criterion_l2 = nn.MSELoss()
+    criterion_l1 = nn.L1Loss()
 
     for epoch in range(TRAIN_EPOCHS):
         print(f"Starting epoch {epoch + 1}/{TRAIN_EPOCHS}")
@@ -91,7 +92,7 @@ if __name__ == "__main__":
                 hour.to(device), month.to(device), targets.to(device),
             )
             mean, _ = model(values, dow, hour, month)
-            loss = criterion(mean, targets)
+            loss = (1 - TRAIN_L1_WEIGHT) * criterion_l2(mean, targets) + TRAIN_L1_WEIGHT * criterion_l1(mean, targets)
             optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), TRAIN_GRAD_CLIP)
@@ -112,7 +113,7 @@ if __name__ == "__main__":
                     hour.to(device), month.to(device), targets.to(device),
                 )
                 mean, _ = model(values, dow, hour, month)
-                val_loss += criterion(mean, targets).item()
+                val_loss += criterion_l2(mean, targets).item()
         val_loss /= min(MAX_VAL_BATCHES or len(val_loader), len(val_loader))
         print(f"Epoch {epoch + 1}/{TRAIN_EPOCHS}  train_loss={train_loss:.4f}  val_loss={val_loss:.4f}")
 

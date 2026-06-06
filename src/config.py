@@ -18,6 +18,7 @@ TRAIN_BATCH_SIZE = 256
 TRAIN_STRIDE = 95
 MAX_BATCHES_PER_EPOCH = 20  # set to an int to cap batches per epoch
 MAX_VAL_BATCHES = 10
+TRAIN_L1_WEIGHT = 0.0  # weight for L1 term; 0 = pure MSE, 1 = equal L1+L2
 
 MODEL_DIR = os.path.join("data", "models")
 
