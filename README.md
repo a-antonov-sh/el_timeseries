@@ -67,6 +67,7 @@ Resumes from `data/models/transformer.pt` if it exists. Key config options:
 | `TRAIN_BATCH_SIZE` | 512     | Batch size |
 | `TRAIN_STRIDE` | 24      | Sliding window stride (hours) |
 | `MAX_BATCHES_PER_EPOCH` | 200     | Cap batches per epoch (`None` = all) |
+| `TRAIN_L1_WEIGHT` | 0.0     | Blended loss weight: `(1 - w) * L2 + w * L1`. `0` = pure MSE, `1` = pure MAE, intermediate values mix both. Val loss always tracks pure L2. |
 
 ---
 
@@ -95,7 +96,7 @@ Current results:
 | Model        | MAE       | RMSE      | Mean uncertainty |
 |--------------|-----------|-----------|------------------|
 | Chronos-2    | 1.008     | 1.376     | 0.531            |
-| Transformer  | **0.749** | **1.050** | 1.003            |
+| Transformer  | **0.828** | **1.215** | 0.998            |
 
 ---
 

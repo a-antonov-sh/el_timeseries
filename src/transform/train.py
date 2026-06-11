@@ -76,8 +76,7 @@ if __name__ == "__main__":
     print(f"Train: {len(train_dataset)} examples  Val: {len(val_dataset)} examples  device={device}")
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=TRAIN_LR, weight_decay=TRAIN_WEIGHT_DECAY)
-    criterion_l2 = nn.MSELoss()
-    criterion_l1 = nn.L1Loss()
+    criterion = nn.GaussianNLLLoss()
 
     for epoch in range(TRAIN_EPOCHS):
         print(f"Starting epoch {epoch + 1}/{TRAIN_EPOCHS}")
@@ -91,8 +90,8 @@ if __name__ == "__main__":
                 values.to(device), dow.to(device),
                 hour.to(device), month.to(device), targets.to(device),
             )
-            mean, _ = model(values, dow, hour, month)
-            loss = (1 - TRAIN_L1_WEIGHT) * criterion_l2(mean, targets) + TRAIN_L1_WEIGHT * criterion_l1(mean, targets)
+            mean, std = model(values, dow, hour, month)
+            loss = criterion(mean, targets, std ** 2)
             optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), TRAIN_GRAD_CLIP)
@@ -112,8 +111,8 @@ if __name__ == "__main__":
                     values.to(device), dow.to(device),
                     hour.to(device), month.to(device), targets.to(device),
                 )
-                mean, _ = model(values, dow, hour, month)
-                val_loss += criterion_l2(mean, targets).item()
+                mean, std = model(values, dow, hour, month)
+                val_loss += criterion(mean, targets, std ** 2).item()
         val_loss /= min(MAX_VAL_BATCHES or len(val_loader), len(val_loader))
         print(f"Epoch {epoch + 1}/{TRAIN_EPOCHS}  train_loss={train_loss:.4f}  val_loss={val_loss:.4f}")
 
