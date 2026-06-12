@@ -9,7 +9,5 @@ PROJ=chron
 
 while true; do
     gcloud storage rsync -r --preserve-posix src/ gs://releva-ml-dev/dev/$REPO/$PROJ/src
-    gcloud storage rsync -r --preserve-posix data/ gs://releva-ml-dev/dev/$REPO/$PROJ/data
-    gcloud storage rsync -r --preserve-posix exec/ gs://releva-ml-dev/dev/$REPO/$PROJ/exec
     sleep 1
 done

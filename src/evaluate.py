@@ -2,9 +2,9 @@ import os
 import sys
 import pandas as pd
 from datasets import load_dataset
-from config import PREDICTIONS_DIR
-
-PREDICTION_LENGTH = 24
+from config import PREDICTION_LEN
+from data.config import PREDICTIONS_DIR
+from common.command import Command
 
 
 def load_actuals():
@@ -12,7 +12,7 @@ def load_actuals():
     rows = []
     for i, row in enumerate(dataset["validation"]):
         start = pd.Timestamp(row["start"])
-        for step in range(PREDICTION_LENGTH):
+        for step in range(PREDICTION_LEN):
             rows.append({
                 "id": str(i),
                 "timestamp": start + pd.Timedelta(hours=step),
@@ -34,19 +34,21 @@ def evaluate(predictions, actuals, label):
 
 N_SERIES = 30  # set to None to evaluate all series
 
-if __name__ == "__main__":
+
+def _run_evaluate(file=None):
     actuals = load_actuals()
     if N_SERIES is not None:
         actuals = actuals[actuals["id"].astype(int) < N_SERIES]
 
     files = {
-        "Chronos-2":    "predictions.parquet",
-        "Transformer":  "transformer_predictions.parquet",
+        "Chronos-2":   "chronos_2_predictions.parquet",
+        "Transformer": "transformer_predictions.parquet",
+        "XGBoost":     "xgboost_predictions.parquet",
+        "kNN":         "knn_predictions.parquet",
+        "ARIMA":       "arima_predictions.parquet",
     }
-
-    # allow overriding via CLI arg: python evaluate.py transformer_predictions.parquet
-    if len(sys.argv) > 1:
-        files = {"Model": sys.argv[1]}
+    if file:
+        files = {"Model": file}
 
     for label, filename in files.items():
         path = os.path.join(PREDICTIONS_DIR, filename)
@@ -54,3 +56,19 @@ if __name__ == "__main__":
             print(f"[{label}] no predictions file found at {path}")
             continue
         evaluate(pd.read_parquet(path), actuals, label)
+
+
+class EvaluateCommand(Command):
+    name = "evaluate"
+    help = "Evaluate predictions against validation ground truth"
+
+    @classmethod
+    def add_args(cls, parser):
+        parser.add_argument("--file", type=str, default=None, help="Specific predictions file to evaluate")
+
+    def __call__(self):
+        _run_evaluate(self.args.file)
+
+
+if __name__ == "__main__":
+    _run_evaluate(sys.argv[1] if len(sys.argv) > 1 else None)

@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from datasets import load_dataset
-from config import PREPARED_DIR, TRAIN_HISTORY
+from data.config import PREPARED_DIR, TRAIN_HISTORY
 
 
 class Data:
@@ -28,8 +28,8 @@ class Data:
         for i, row in enumerate(self.train):
             if i % 50 == 0:
                 print(f"  context: {i}/{total} series")
-            target = row["target"][-TRAIN_HISTORY:]
-            offset = max(0, len(row["target"]) - TRAIN_HISTORY)
+            target = row["target"] if TRAIN_HISTORY is None else row["target"][-TRAIN_HISTORY:]
+            offset = 0 if TRAIN_HISTORY is None else max(0, len(row["target"]) - TRAIN_HISTORY)
             start = pd.Timestamp(row["start"]) + pd.Timedelta(hours=offset)
             for step, value in enumerate(target):
                 ts = start + pd.Timedelta(hours=step)

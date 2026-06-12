@@ -1,0 +1,1 @@
+from models.kNN.kNN import KNNModel

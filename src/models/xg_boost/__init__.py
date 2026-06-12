@@ -1,0 +1,1 @@
+from models.xg_boost.xg_boost import XGBoostModel

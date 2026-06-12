@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+from program import program
+from data import PrepareCommand
+from models.xg_boost import XGBoostModel
+from models.kNN import KNNModel
+from models.ARIMA import ARIMAModel
+from models.transform import TransformerModel
+from models.chronos_2 import Chronos2Model
+from evaluate import EvaluateCommand
+
+if __name__ == "__main__":
+    program(
+        name="run",
+        description="Electricity forecasting pipeline",
+        commands=[PrepareCommand, TransformerModel, XGBoostModel, KNNModel, ARIMAModel, Chronos2Model, EvaluateCommand],
+    )

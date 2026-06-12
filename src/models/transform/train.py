@@ -5,53 +5,18 @@ import numpy as np
 import torch
 import torch.nn as nn
 import pandas as pd
-from torch.utils.data import Dataset, DataLoader
-from transform.transformer import _ElectricityBert
-from config import (
-    CONTEXT_LEN, PREDICTION_LEN, MODEL_DIR, PREPARED_DIR,
+from torch.utils.data import DataLoader
+from models.transform.electricity_bert import ElectricityBert
+from models.transform.dataset import ElectricityDataset
+from data.config import PREPARED_DIR
+from models.transform.config import (
+    CONTEXT_LEN, PREDICTION_LEN, MODEL_DIR,
     TRAIN_EPOCHS, TRAIN_LR, TRAIN_WEIGHT_DECAY, TRAIN_GRAD_CLIP, TRAIN_BATCH_SIZE, TRAIN_STRIDE, MAX_BATCHES_PER_EPOCH, MAX_VAL_BATCHES, TRAIN_L1_WEIGHT,
 )
 
 
-class ElectricityDataset(Dataset):
-    def __init__(self, context_df):
-        self.examples = []
-        ids = sorted(context_df["id"].unique(), key=int)
-        total = len(ids)
-        for idx, series_id in enumerate(ids):
-            if idx % 50 == 0:
-                print(f"  building dataset: {idx}/{total} series, {len(self.examples)} examples so far")
-            s = context_df[context_df["id"] == series_id].sort_values("timestamp")
-            values = s["target"].values.astype(np.float32)
-            dow = s["day_of_week"].values.astype(np.int64)
-            hour = s["hour"].values.astype(np.int64)
-            month = s["month"].values.astype(np.int64)
-            n = len(values)
-            for start in range(0, n - CONTEXT_LEN - PREDICTION_LEN + 1, TRAIN_STRIDE):
-                end = start + CONTEXT_LEN
-                self.examples.append((
-                    values[start:end],
-                    dow[start:end],
-                    hour[start:end],
-                    month[start:end],
-                    values[end:end + PREDICTION_LEN],
-                ))
 
-    def __len__(self):
-        return len(self.examples)
-
-    def __getitem__(self, idx):
-        values, dow, hour, month, target = self.examples[idx]
-        return (
-            torch.tensor(values),
-            torch.tensor(dow),
-            torch.tensor(hour),
-            torch.tensor(month),
-            torch.tensor(target),
-        )
-
-
-if __name__ == "__main__":
+def _run_training():
     context_df = pd.read_parquet(os.path.join(PREPARED_DIR, "context.parquet"))
 
     all_ids = sorted(context_df["id"].unique(), key=int)
@@ -60,7 +25,7 @@ if __name__ == "__main__":
     val_df = context_df[context_df["id"].isin(all_ids[split:])]
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = _ElectricityBert(device)
+    model = ElectricityBert(device)
     path = os.path.join(MODEL_DIR, "transformer.pt")
     if os.path.exists(path):
         model.load_state_dict(torch.load(path, map_location=device))
@@ -120,3 +85,7 @@ if __name__ == "__main__":
     path = os.path.join(MODEL_DIR, "transformer.pt")
     torch.save(model.state_dict(), path)
     print(f"Saved {path}")
+
+
+if __name__ == "__main__":
+    _run_training()
