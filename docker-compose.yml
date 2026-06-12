@@ -1,6 +1,7 @@
 services:
   chronos:
     image: chronos2:260612
+    pull_policy: never
     env_file: .env
     environment:
       - CUDA_VISIBLE_DEVICES=3
