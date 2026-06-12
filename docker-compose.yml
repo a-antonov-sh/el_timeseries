@@ -1,13 +1,13 @@
 services:
   chronos:
-    build: .
+    image: chronos2:260612
     env_file: .env
     environment:
       - CUDA_VISIBLE_DEVICES=3
     volumes:
       - ./data:/app/data
       - ./src:/app/src
-    command: ./keep_alive.sh
+    command: ./exec/keep_alive
 
     deploy:
       resources:

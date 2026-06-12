@@ -8,10 +8,9 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 
 COPY src/ src/
 COPY exec/ exec/
-COPY keep_alive.sh .
 
-RUN chmod +x exec/* keep_alive.sh
+RUN chmod +x exec/*
 
 ENV PYTHONPATH=src
 
-CMD ["./keep_alive.sh"]
+CMD ["./exec/keep_alive"]

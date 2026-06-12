@@ -1,0 +1,10 @@
+
+
+if [ -z $REPO ]
+  then
+    REPO=$USER
+fi
+
+PROJ=chron
+
+gcloud storage rsync -r --preserve-posix  gs://releva-ml-dev/dev/$REPO/$PROJ/src .
